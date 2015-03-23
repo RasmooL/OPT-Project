@@ -9,28 +9,40 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Header Files\algorithm">
+      <UniqueIdentifier>{55cacc2e-6960-4f97-ac0e-be95f1071c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\problem">
+      <UniqueIdentifier>{b45db5f7-5bd7-4e0a-a706-98ab84d0bc41}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\problem">
+      <UniqueIdentifier>{d4a77a80-17ed-43f4-beba-8e303dafed39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OPT-Project.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="problem\lundbeck.cpp">
+      <Filter>Source Files\problem</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="problem\base.h">
+      <Filter>Header Files\problem</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\tabu.h">
+      <Filter>Header Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="problem\lundbeck.h">
+      <Filter>Header Files\problem</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
