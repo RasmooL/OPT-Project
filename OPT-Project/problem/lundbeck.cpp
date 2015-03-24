@@ -256,6 +256,7 @@ namespace problem
 
 				from_job_it = to_job_it;
 			}
+			this_fitness += jobs[*from_job_it].nummeret; // Last job must also be added
 			if (this_fitness > fitness) fitness = this_fitness; // Choose the highest makespan from all machines
 		}
 		return fitness;
