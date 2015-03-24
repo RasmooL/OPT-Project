@@ -7,7 +7,7 @@ int main()
 	using namespace std;
 
 	bool param_tune = false;
-	double run_time = 20;
+	double run_time = 180;
 	unsigned int machines = 3;
 	unsigned int tabu_length = 500;
 	unsigned int neigh_size = 1;
