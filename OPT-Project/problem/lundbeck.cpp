@@ -15,11 +15,11 @@ namespace problem
 		using namespace boost;
 
 		machine_dist = uniform_int_distribution<int>(0, n_machines - 1);
-		rand.seed(time(0));
+		rand.seed((unsigned long)time(0));
 
 		for (unsigned int i = 0; i < machines; i++)
 		{
-			vector<job> j;
+			vector<unsigned int> j;
 			solution.push_back(j);
 		}
 
@@ -248,14 +248,15 @@ namespace problem
 			for (auto job_it = machine_list.begin()++; job_it != machine_list.end(); job_it++)
 			{
 				auto to_job_it = job_it;
-				const job& from_job = *from_job_it;
-				const job& to_job = *to_job_it;
+				const job& from_job = jobs[*from_job_it];
+				const job& to_job = jobs[*to_job_it];
 
 				this_fitness += from_job.nummeret;
 				this_fitness += clean_time(from_job, to_job);
 
 				from_job_it = to_job_it;
 			}
+			this_fitness += jobs[*from_job_it].nummeret; // Last job must also be added
 			if (this_fitness > fitness) fitness = this_fitness; // Choose the highest makespan from all machines
 		}
 		return fitness;
@@ -266,18 +267,18 @@ namespace problem
 		// TODO: Make sure everything is checked for
 		for (unsigned int m = 0; m < n_machines; m++)
 		{
-			for (int j = 0, jmax = sol[m].size(); j < jmax; j++)
+			for (int j = 0, jmax = (int)sol[m].size(); j < jmax; j++)
 			{
 				// Check machine types
-				if (m == 0 && sol[m][j].machine_type == job::machinetype::TWO) return false;
-				if (m == 1 && sol[m][j].machine_type == job::machinetype::ONE) return false;
-				if (m == 2 && sol[m][j].machine_type != job::machinetype::ALL) return false;
+				if (m == 0 && jobs[sol[m][j]].machine_type == job::machinetype::TWO) return false;
+				if (m == 1 && jobs[sol[m][j]].machine_type == job::machinetype::ONE) return false;
+				if (m == 2 && jobs[sol[m][j]].machine_type != job::machinetype::ALL) return false;
 			}
 		}
 		return true;
 	}
 
-	void lundbeck::move_between(std::vector<job>& f, std::vector<job>& t, int from, int to)
+	void lundbeck::move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to)
 	{
 		// Doesn't work, but would maybe be faster...
 		//std::move(f.begin() + from, f.begin() + from, t.begin() + to);
@@ -289,19 +290,19 @@ namespace problem
 		t.insert(t.begin() + to, el);
 	}
 
-	void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours)
+	void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours, int size)
 	{
 		//for (int fm = 0; fm < 3; fm++)
 
 		Concurrency::combinable<std::vector<solution_type>> n_combinable;
-		Concurrency::parallel_for((const unsigned int)0, n_machines, [&n_combinable, this](int fm) // From machine
+		Concurrency::parallel_for((const unsigned int)0, n_machines, [&n_combinable, size, this](int fm) // From machine
 		{
 			solution_type tmp_sol(solution);
 			for (int tm = 0, tmmax = n_machines; tm < tmmax; tm++) // To machine
 			{
-				for (int fj = 0, fjmax = solution[fm].size(); fj < fjmax; fj++) // From job
+				for (int fj = 0, fjmax = (int)solution[fm].size(); fj < fjmax; fj++) // From job
 				{
-					for (int tj = 0, tjmax = solution[tm].size(); tj < tjmax; tj++) // To job
+					for (int tj = 0, tjmax = (int)solution[tm].size(); tj < tjmax; tj++) // To job
 					{
 						if (fj == tj) continue;
 
@@ -312,27 +313,28 @@ namespace problem
 							n_combinable.local().push_back(tmp_sol);
 						}
 
-						if (false) // This makes neighbourhood size = 2 (danger)
+						if (size == 2) // This makes neighbourhood size = 2 (danger)
 						{
+							solution_type tmp_sol2 = tmp_sol;
 							for (int fm2 = 0, fmmax2 = n_machines; fm2 < fmmax2; fm2++)
 							{
 								for (int tm2 = 0, tmmax2 = n_machines; tm2 < tmmax2; tm2++) // To machine
 								{
-									for (int fj2 = 0, fjmax2 = solution[fm2].size(); fj2 < fjmax2; fj2++) // From job
+									for (int fj2 = 0, fjmax2 = (int)tmp_sol[fm2].size(); fj2 < fjmax2; fj2++) // From job
 									{
-										for (int tj2 = 0, tjmax2 = solution[tm2].size(); tj2 < tjmax2; tj2++) // To job
+										for (int tj2 = 0, tjmax2 = (int)tmp_sol[tm2].size(); tj2 < tjmax2; tj2++) // To job
 										{
 											if (fj2 == tj2) continue;
 
-											move_between(tmp_sol[fm2], tmp_sol[tm2], fj2, tj2);
+											move_between(tmp_sol2[fm2], tmp_sol2[tm2], fj2, tj2);
 
-											if (is_valid(tmp_sol))
+											if (is_valid(tmp_sol2))
 											{
-												n_combinable.local().push_back(tmp_sol);
+												n_combinable.local().push_back(tmp_sol2);
 											}
 
 											// Move back again
-											move_between(tmp_sol[tm2], tmp_sol[fm2], tj2, fj2);
+											move_between(tmp_sol2[tm2], tmp_sol2[fm2], tj2, fj2);
 
 										}
 									}
@@ -350,8 +352,8 @@ namespace problem
 		// Re-combine neighbour solutions
 		n_combinable.combine_each([&neighbours](const std::vector<solution_type>& vec)
 		{
-			//neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
-			std::copy(vec.begin(), vec.end(), std::back_inserter(neighbours));
+			neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
+			//std::copy(vec.begin(), vec.end(), std::back_inserter(neighbours));
 		});
 	}
 	// Get all neighbours for solution 's' within a neighbourhood of size 'size'
@@ -359,7 +361,7 @@ namespace problem
 	{
 		std::vector<solution_type> neighbours, neighbours1, neighbours2, neighbours3;
 
-		find_neigh_thread(neighbours);
+		find_neigh_thread(neighbours, size);
 
 		return neighbours;
 	}
@@ -369,48 +371,48 @@ namespace problem
 		if (j.machine_type == job::machinetype::ALL)
 		{
 			// Insert on a random machine at a random position
-			std::vector<job>& m = solution[machine_dist(rand)];
+			std::vector<unsigned int>& m = solution[machine_dist(rand)];
 			if (m.size() == 0)
 			{
-				m.push_back(j);
+				m.push_back(j.id);
 				return;
 			}
-			auto job_dist = std::uniform_int_distribution<int>(0, m.size() - 1);
+			auto job_dist = std::uniform_int_distribution<int>(0, (int)m.size() - 1);
 			auto it = m.begin();
 			std::advance(it, job_dist(rand));
-			m.insert(it, j);
+			m.insert(it, j.id);
 
 			return;
 		}
 		if (j.machine_type == job::machinetype::ONE)
 		{
 			// Insert on first machine at a random position
-			std::vector<job>& m = solution[0];
+			std::vector<unsigned int>& m = solution[0];
 			if (m.size() == 0)
 			{
-				m.push_back(j);
+				m.push_back(j.id);
 				return;
 			}
-			auto job_dist = std::uniform_int_distribution<int>(0, m.size() - 1);
+			auto job_dist = std::uniform_int_distribution<int>(0, (int)m.size() - 1);
 			auto it = m.begin();
 			std::advance(it, job_dist(rand));
-			m.insert(it, j);
+			m.insert(it, j.id);
 
 			return;
 		}
 		if (j.machine_type == job::machinetype::TWO)
 		{
 			// Insert on second machine at a random position
-			std::vector<job>& m = solution[1];
+			std::vector<unsigned int>& m = solution[1];
 			if (m.size() == 0)
 			{
-				m.push_back(j);
+				m.push_back(j.id);
 				return;
 			}
-			auto job_dist = std::uniform_int_distribution<int>(0, m.size() - 1);
+			auto job_dist = std::uniform_int_distribution<int>(0, (int)m.size() - 1);
 			auto it = m.begin();
 			std::advance(it, job_dist(rand));
-			m.insert(it, j);
+			m.insert(it, j.id);
 
 			return;
 		}
@@ -418,25 +420,25 @@ namespace problem
 		{
 			// Insert on first or second machine at a random position
 			auto m_dist = std::uniform_int_distribution<int>(0, 1);
-			std::vector<job>& m = solution[m_dist(rand)];
+			std::vector<unsigned int>& m = solution[m_dist(rand)];
 			if (m.size() == 0)
 			{
-				m.push_back(j);
+				m.push_back(j.id);
 				return;
 			}
-			auto job_dist = std::uniform_int_distribution<int>(0,  m.size() - 1);
+			auto job_dist = std::uniform_int_distribution<int>(0,  (int)m.size() - 1);
 			auto it = m.begin();
 			std::advance(it, job_dist(rand));
-			m.insert(it, j);
+			m.insert(it, j.id);
 
 			return;
 		}
 		
 	}
 
-	void print(std::ostream& os, const std::vector<job>& s) {
+	void print(std::ostream& os, const std::vector<unsigned int>& s) {
 		for (auto i = s.begin(); i != s.end(); ++i)
-			os << i->id << " ";
+			os << *i << " ";
 		os << std::endl;
 	}
 	void print(std::ostream& os, const lundbeck::solution_type& A)

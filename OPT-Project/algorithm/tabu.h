@@ -36,6 +36,7 @@ namespace algorithm
 				if (tabu_list.size() > tabu_len) tabu_list.pop_back();
 
 				// Get list of neighbours
+				if (count > 500) neigh_size = 2;
 				auto neighbours = problem.neighbours(neigh_size);
 
 				// Choose best one

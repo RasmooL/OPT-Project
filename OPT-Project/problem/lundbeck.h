@@ -9,7 +9,7 @@ namespace problem
 {
 	class job;
 
-	class lundbeck : public base<double, std::vector<std::vector<job>>>
+	class lundbeck : public base<double, std::vector<std::vector<unsigned int>>>
 	{
 	public:
 		std::uniform_int_distribution<int> machine_dist;
@@ -26,8 +26,8 @@ namespace problem
 
 		virtual fitness_type fitness(const solution_type& s) override;
 
-		void lundbeck::move_between(std::vector<job>& f, std::vector<job>& t, int from, int to);
-		void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours);
+		void lundbeck::move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to);
+		void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours, int size);
 		std::vector<solution_type> neighbours(int size) override;
 
 		void add_initial_solution(job& j);
