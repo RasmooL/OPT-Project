@@ -8,15 +8,17 @@
 
 namespace algorithm
 {
+
 	template<typename F, typename S>
 	class tabu
 	{
 		problem::base<F,S>& problem;
 		typedef std::deque<S> tabu_type;
 		tabu_type tabu_list;
-		unsigned int tabu_len, neigh_size;
+		unsigned int tabu_len, large_count;
+		bool large_neigh;
 	public:
-		tabu(problem::base<F,S>& prob, unsigned int len, unsigned int neigh_size) : problem(prob), tabu_len(len), neigh_size(neigh_size) {}
+		tabu(problem::base<F,S>& prob, unsigned int len, bool large_neigh = false, unsigned int large_count = 0) : problem(prob), tabu_len(len), large_neigh(large_neigh), large_count(large_count) {}
 		~tabu() {}
 
 		int evolve(double runtime)
@@ -27,6 +29,8 @@ namespace algorithm
 
 			std::cout << "Start fitness: " << problem.fitness(global_best) << std::endl;
 
+			unsigned int no_improvement_count = 0;
+			unsigned int neigh_size = 1;
 			while (time.elapsed() < runtime)
 			{
 				count++;
@@ -36,7 +40,7 @@ namespace algorithm
 				if (tabu_list.size() > tabu_len) tabu_list.pop_back();
 
 				// Get list of neighbours
-				if (count > 500) neigh_size = 2;
+				if (large_neigh && neigh_size == 1 && no_improvement_count >= large_count) neigh_size = 2;
 				auto neighbours = problem.neighbours(neigh_size);
 
 				// Choose best one
@@ -45,10 +49,12 @@ namespace algorithm
 				std::cout << "Neighbour fitness: " << problem.fitness(best_n) << std::endl;
 
 				// Is new better than current global best?
+				no_improvement_count++;
 				if (problem.compare_fitness(best_n))
 				{
 					std::cout << "New global best" << std::endl;
 					global_best = best_n;
+					no_improvement_count = 0;
 				}
 
 				// Always set best neighbour as current
