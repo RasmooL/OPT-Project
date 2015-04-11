@@ -13,8 +13,9 @@ int main()
 	unsigned int neigh_size = 1;
 
 	using prob_type = problem::lundbeck;
+	using alg_type = algorithm::tabu<prob_type::fitness_type, prob_type::solution_type>;
 	auto problem = prob_type("C:\\Users\\Rasmus\\Documents\\Visual Studio 2013\\Projects\\OPT-Project\\blister_actual.csv", machines);
-	auto algorithm = algorithm::tabu<prob_type::fitness_type, prob_type::solution_type>(problem, tabu_length, neigh_size);
+	auto algorithm = alg_type(problem, tabu_length, neigh_size);
 
 	// Parameter tune, or calculate solution
 	if (param_tune)
