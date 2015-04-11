@@ -22,12 +22,12 @@ namespace problem
 		lundbeck(std::string file, const unsigned int machines);
 		~lundbeck();
 
-		bool lundbeck::is_valid(const solution_type& sol);
+		bool is_valid(const solution_type& sol);
 
 		virtual fitness_type fitness(const solution_type& s) override;
 
-		void lundbeck::move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to);
-		void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours, int size);
+		void move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to);
+		void find_neigh_thread(std::vector<solution_type>& neighbours, int size);
 		std::vector<solution_type> neighbours(int size) override;
 
 		void add_initial_solution(job& j);
