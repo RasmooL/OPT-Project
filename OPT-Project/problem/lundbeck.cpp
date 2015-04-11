@@ -255,7 +255,7 @@ namespace problem
 				this_time += time;
 				this_fitness += time;
 				// Penalize DOS
-				if (to_job.dos == 0 && this_time > 4320) // 4320 minutes = 72 hours 
+				if (from_job.dos == 0 && this_time > 4320) // 4320 minutes = 72 hours 
 				{
 					this_fitness += 500; // Set a relatively big penalty
 				}
@@ -263,6 +263,13 @@ namespace problem
 				from_job_it = to_job_it;
 			}
 			this_fitness += jobs[*from_job_it].nummeret; // Last job must also be added
+
+			// Penalize DOS
+			if (jobs[*from_job_it].dos == 0 && this_time > 4320) // 4320 minutes = 72 hours 
+			{
+				this_fitness += 500; // Set a relatively big penalty
+			}
+
 			if (this_fitness > fitness) fitness = this_fitness; // Choose the highest makespan from all machines
 		}
 		return fitness;
