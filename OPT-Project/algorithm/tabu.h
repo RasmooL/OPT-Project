@@ -1,6 +1,6 @@
 #pragma once
-#include "..\problem\base.h"
-#include "..\timer.h"
+#include "../problem/base.h"
+#include "../timer.h"
 
 #include <list>
 #include <deque>
@@ -69,7 +69,7 @@ namespace algorithm
 			for (auto sol = s.begin(); sol < s.end(); sol++)
 			{
 				F cur = problem.fitness(*sol);
-				if (cur < best_score && std::find(tabu_list.begin(), tabu_list.end(), *sol) == tabu_list.end()) // Better than current best & not in Tabu list
+				if (cur < best_score)// && std::find<S>(tabu_list.begin(), tabu_list.end(), *sol) == tabu_list.end()) // Better than current best & not in Tabu list
 				{
 					best = sol;
 					best_score = problem.fitness(*best);

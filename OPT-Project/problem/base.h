@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <iostream>
 
 namespace problem
 {

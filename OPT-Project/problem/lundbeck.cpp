@@ -3,9 +3,13 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 #include <list>
-#include <thread>
-#include <mutex>
+
+#ifdef _WIN32
 #include <ppl.h>
+#else
+#include "tbb/parallel_for.h"
+#include "tbb/combinable.h"
+#endif
 
 namespace problem
 {
@@ -306,9 +310,14 @@ namespace problem
 	void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours, int size)
 	{
 		//for (int fm = 0; fm < 3; fm++)
+#ifdef _WIN32
+using namespace Concurrency
+#else
+using namespace tbb;
+#endif
 
-		Concurrency::combinable<std::vector<solution_type>> n_combinable;
-		Concurrency::parallel_for((const unsigned int)0, n_machines, [&n_combinable, size, this](int fm) // From machine
+		combinable<std::vector<solution_type>> n_combinable;
+		parallel_for((const unsigned int)0, n_machines, [&n_combinable, size, this](int fm) // From machine
 		{
 			solution_type tmp_sol(solution);
 			for (int tm = 0, tmmax = n_machines; tm < tmmax; tm++) // To machine

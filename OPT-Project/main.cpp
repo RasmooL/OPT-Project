@@ -1,6 +1,7 @@
 #include <iostream>
-#include "algorithm\tabu.h"
-#include "problem\lundbeck.h"
+#include <string>
+#include "algorithm/tabu.h"
+#include "problem/lundbeck.h"
 
 int main()
 {
@@ -12,9 +13,11 @@ int main()
 	unsigned int tabu_length = 500;
 	unsigned int neigh_size = 1;
 
+	std::string path = "blister_actual.csv";
 	using prob_type = problem::lundbeck;
 	using alg_type = algorithm::tabu<prob_type::fitness_type, prob_type::solution_type>;
-	auto problem = prob_type("C:\\Users\\Rasmus\\Documents\\Visual Studio 2013\\Projects\\OPT-Project\\blister_actual.csv", machines);
+	//auto problem = prob_type("C:\\Users\\Rasmus\\Documents\\Visual Studio 2013\\Projects\\OPT-Project\\blister_actual.csv", machines);
+	auto problem = prob_type(path, machines);
 	auto algorithm = alg_type(problem, tabu_length, neigh_size);
 
 	// Parameter tune, or calculate solution
