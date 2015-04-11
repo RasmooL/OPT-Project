@@ -33,7 +33,6 @@ namespace problem
 		}
 
 		n_jobs = 0;
-
 		while (!f.eof()) // Loop for each job
 		{
 			try
@@ -44,7 +43,7 @@ namespace problem
 				// MRP ctrlr
 				getline(f, buf, ',');
 
-				// Order
+				// Order ID
 				getline(f, buf, ',');
 				j.id = lexical_cast<unsigned int>(buf);
 
@@ -163,7 +162,7 @@ namespace problem
 				getline(f, buf);
 				j.mdvp = lexical_cast<unsigned int>(buf);
 
-				// Newline
+				// SKIP HALF THE JOBS
 				getline(f, buf);
 
 				// Add job to jobs map
@@ -238,11 +237,12 @@ namespace problem
 	}
 	lundbeck::fitness_type lundbeck::fitness(const solution_type& s)
 	{
-		// The fitness is the makespan
+		// The fitness is the makespan (plus DOS penalty if not valid solution)
 		double fitness = 0;
 		for (auto machine_it = s.begin(); machine_it != s.end(); machine_it++)
 		{
 			double this_fitness = 0;
+			double this_time = 0;
 			auto& machine_list = *machine_it;
 			auto from_job_it = machine_list.begin();
 			for (auto job_it = machine_list.begin()++; job_it != machine_list.end(); job_it++)
@@ -251,8 +251,14 @@ namespace problem
 				const job& from_job = jobs[*from_job_it];
 				const job& to_job = jobs[*to_job_it];
 
-				this_fitness += from_job.nummeret;
-				this_fitness += clean_time(from_job, to_job);
+				auto time = from_job.nummeret + clean_time(from_job, to_job);
+				this_time += time;
+				this_fitness += time;
+				// Penalize DOS
+				if (to_job.dos == 0 && this_time > 4320) // 4320 minutes = 72 hours 
+				{
+					this_fitness += 500; // Set a relatively big penalty
+				}
 
 				from_job_it = to_job_it;
 			}
