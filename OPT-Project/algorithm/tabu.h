@@ -66,7 +66,16 @@ namespace algorithm
 
 			return count;
 		}
-
+		
+		// Custom find function is necessary to compile with g++ (std::find works in VC++)
+		typename tabu_type::iterator find_tabu(typename tabu_type::iterator first, typename tabu_type::iterator last, const S& val)
+		{
+		  while (first!=last) {
+		    if (*first==val) return first;
+		    ++first;
+		  }
+		  return last;
+		}
 		// Finds the best solution in s, excluding the Tabu list
 		S& get_best(std::vector<S>& s, F global_best)
 		{
@@ -76,11 +85,12 @@ namespace algorithm
 			{
 				F cur = problem.fitness(*sol);
 				// TODO: FIX FIND ON GCC
-				if (cur < best_score && std::find(tabu_list.begin(), tabu_list.end(), *sol) == tabu_list.end()) // Better than current best & not in Tabu list
+				if (cur < best_score && find_tabu(tabu_list.begin(), tabu_list.end(), *sol) == tabu_list.end()) // Better than current best & not in Tabu list
 				{
 					best = sol;
 					best_score = problem.fitness(*best);
 				}
+				// Global aspiration is useless with exact tabu list?
 				else if (cur < best_score && cur < global_best)
 				{
 					std::cout << "Disregarded tabu list (global best)." << std::endl;
