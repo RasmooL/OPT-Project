@@ -21,7 +21,7 @@ int main()
 	using prob_type = problem::lundbeck;
 	using alg_type = algorithm::tabu<prob_type::fitness_type, prob_type::solution_type>;
 	auto problem = prob_type(path, machines);
-	auto algorithm = alg_type(problem, tabu_length, neigh_size);
+	auto algorithm = alg_type(problem, tabu_length, large_neigh, large_count);
 
 	// Parameter tune, or calculate solution
 	if (param_tune)

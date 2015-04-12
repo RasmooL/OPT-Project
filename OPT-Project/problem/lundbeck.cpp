@@ -311,9 +311,9 @@ namespace problem
 	{
 		//for (int fm = 0; fm < 3; fm++)
 #ifdef _WIN32
-using namespace Concurrency
+		using namespace Concurrency;
 #else
-using namespace tbb;
+		using namespace tbb;
 #endif
 
 		combinable<std::vector<solution_type>> n_combinable;
