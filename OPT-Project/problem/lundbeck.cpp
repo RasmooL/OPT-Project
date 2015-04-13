@@ -37,7 +37,7 @@ namespace problem
 		}
 
 		n_jobs = 0;
-		while (!f.eof()) // Loop for each job
+		while (!f.eof() && n_jobs < 110) // Loop for each job (n_jobs limit)
 		{
 			try
 			{
@@ -165,9 +165,6 @@ namespace problem
 				// MDVP
 				getline(f, buf);
 				j.mdvp = lexical_cast<unsigned int>(buf);
-
-				// SKIP HALF THE JOBS
-				getline(f, buf);
 
 				// Add job to jobs map
 				jobs[j.id] = j;
