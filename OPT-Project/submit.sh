@@ -13,4 +13,5 @@
 # -- run in the current working (submission) directory --
 if test X$PBS_ENVIRONMENT = XPBS_BATCH; then cd $PBS_O_WORKDIR; fi
 
-opt
+lscpu
+./opt

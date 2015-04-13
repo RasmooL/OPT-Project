@@ -37,7 +37,7 @@ namespace problem
 		}
 
 		n_jobs = 0;
-		while (!f.eof() && n_jobs < 60) // Loop for each job (n_jobs limit)
+		while (!f.eof() && n_jobs < 90) // Loop for each job (n_jobs limit)
 		{
 			try
 			{

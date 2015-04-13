@@ -8,11 +8,11 @@ int main()
 	using namespace std;
 
 	bool param_tune = false;
-	double run_time = 60;
+	double run_time = 120;
 	unsigned int machines = 3;
 	unsigned int tabu_length = 1000;
 	bool large_neigh = true;
-	unsigned int large_count = 0;
+	unsigned int large_count = 50;
 #ifdef _WIN32
 	std::string path = "C:\\Users\\Rasmus\\Documents\\Visual Studio 2013\\Projects\\OPT-Project\\blister_actual.csv";
 #else
