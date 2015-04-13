@@ -27,7 +27,7 @@ namespace problem
 
 		virtual void set_solution(solution_type& sol) override;
 
-		bool lundbeck::machine_job_valid(unsigned int m, unsigned int j);
+		bool machine_job_valid(unsigned int m, unsigned int j);
 		bool is_valid(const solution_type& sol);
 
 		virtual fitness_type fitness(const solution_type& s) override;
