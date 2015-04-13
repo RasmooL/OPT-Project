@@ -16,6 +16,8 @@ namespace problem
 		std::uniform_int_distribution<int> machine_dist;
 		std::mt19937 rand;
 
+		std::vector<std::map<std::pair<unsigned int, unsigned int>, unsigned int>> LTM; // Long term memory for diversification
+
 		const unsigned int n_machines;
 		unsigned int n_jobs;
 		std::map<unsigned int, job> jobs;
@@ -23,6 +25,9 @@ namespace problem
 		lundbeck(std::string file, const unsigned int machines);
 		~lundbeck();
 
+		virtual void set_solution(solution_type& sol) override;
+
+		bool lundbeck::machine_job_valid(unsigned int m, unsigned int j);
 		bool is_valid(const solution_type& sol);
 
 		virtual fitness_type fitness(const solution_type& s) override;
@@ -30,6 +35,8 @@ namespace problem
 		void move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to);
 		solution_type find_neigh_thread(int size, algorithm::tabu<fitness_type, solution_type>* const tabu) override; // Unfortunately I have to make this specific to Tabu unless I do even more template trickery :(
 		//std::vector<solution_type> neighbours(int size) override; 
+
+		virtual void restart() override;
 
 		void add_initial_solution(job& j);
 
