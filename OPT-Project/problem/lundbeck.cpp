@@ -37,7 +37,7 @@ namespace problem
 		}
 
 		n_jobs = 0;
-		while (!f.eof() && n_jobs < 110) // Loop for each job (n_jobs limit)
+		while (!f.eof() && n_jobs < 50) // Loop for each job (n_jobs limit)
 		{
 			try
 			{
@@ -181,6 +181,26 @@ namespace problem
 
 		}
 
+		// Set up LTM
+		for (unsigned int m = 0; m < machines; m++)
+		{
+			auto machine = solution[m];
+			if (machine.size() == 0) // No jobs on machine
+			{
+				LTM.push_back(std::map<std::pair<unsigned int, unsigned int>, unsigned int>());
+				continue;
+			}
+			auto machine_map = std::map<std::pair<unsigned int, unsigned int>, unsigned int>();
+			auto jobf = machine.begin();
+			// First job
+			machine_map[std::make_pair(*jobf, *jobf)] = 1;
+			for (auto jobt = machine.begin() + 1; jobt != machine.end(); jobf++, jobt++)
+			{
+				machine_map[std::make_pair(*jobf, *jobt)] = 1;
+			}
+			LTM.push_back(machine_map);
+		}
+
 		f.close();
 	}
 
@@ -188,15 +208,43 @@ namespace problem
 	{
 	}
 
+	void lundbeck::set_solution(solution_type& sol)
+	{
+		// Update long term frequency 
+		for (int m = 0; m < sol.size(); m++) // For each machine
+		{
+			auto machine = sol[m];
+			if (machine.size() == 0) continue; // Empty machine
+			auto& machine_map = LTM[m];
+			auto jobf = machine.begin();
+			// First job
+			if (!machine_map.count(std::make_pair(*jobf, *jobf)))
+				machine_map[std::make_pair(*jobf, *jobf)] = 1;
+			else
+				machine_map[std::make_pair(*jobf, *jobf)] += 1;
+			// Between jobs
+			for (auto jobt = machine.begin() + 1; jobt != machine.end(); jobf++, jobt++)
+			{
+				if (!machine_map.count(std::make_pair(*jobf, *jobt)))
+					machine_map[std::make_pair(*jobf, *jobt)] = 1;
+				else
+					machine_map[std::make_pair(*jobf, *jobt)] += 1;
+			}
+		}
+
+		solution = sol;
+	}
+
 	// Calculate cleaning time between jobs
 	double clean_time(const job& from_job, const job& to_job)
 	{
+		// TODO: CHECK THAT THIS IS CORRECT!
 		double time = 0;
 		if (from_job.material == to_job.material) return 50; // Same material number
 		
 		if (!from_job.hotmelt && to_job.hotmelt || from_job.hotmelt && !to_job.hotmelt) time += 60;
 
-		if (from_job.packing_type == to_job.packing_type) time += 120;
+		if (from_job.packing_type != to_job.packing_type) time += 120;
 
 		if (from_job.prenumb == to_job.prenumb)
 		{
@@ -245,6 +293,7 @@ namespace problem
 			double this_fitness = 0;
 			double this_time = 0;
 			auto& machine_list = *machine_it;
+			if (machine_list.size() == 0) continue; // No jobs on machine
 			auto from_job_it = machine_list.begin();
 			for (auto job_it = machine_list.begin()++; job_it != machine_list.end(); job_it++)
 			{
@@ -276,17 +325,23 @@ namespace problem
 		return fitness;
 	}
 
-	bool lundbeck::is_valid(const lundbeck::solution_type& sol)
+	bool lundbeck::machine_job_valid(unsigned int m, unsigned int j)
 	{
 		// TODO: Make sure everything is checked for
+		if (m == 0 && jobs[j].machine_type == job::machinetype::TWO) return false;
+		if (m == 1 && jobs[j].machine_type == job::machinetype::ONE) return false;
+		if (m == 2 && jobs[j].machine_type != job::machinetype::ALL) return false;
+
+		return true;
+	}
+
+	bool lundbeck::is_valid(const lundbeck::solution_type& sol)
+	{
 		for (unsigned int m = 0; m < n_machines; m++)
 		{
 			for (int j = 0, jmax = (int)sol[m].size(); j < jmax; j++)
 			{
-				// Check machine types
-				if (m == 0 && jobs[sol[m][j]].machine_type == job::machinetype::TWO) return false;
-				if (m == 1 && jobs[sol[m][j]].machine_type == job::machinetype::ONE) return false;
-				if (m == 2 && jobs[sol[m][j]].machine_type != job::machinetype::ALL) return false;
+				if (!machine_job_valid(m, sol[m][j])) return false;
 			}
 		}
 		return true;
@@ -383,6 +438,90 @@ namespace problem
 		find_neigh_thread(neighbours, size);
 
 		return neighbours;
+	}
+
+	// Greedy restart diversification using long term frequency memory
+	void lundbeck::restart()
+	{
+		std::cout << "Restart diversification" << std::endl;
+		solution.clear();
+
+		// Get all jobs
+		std::vector<unsigned int> jobs_list;
+		for (auto job : jobs) jobs_list.push_back(job.first);
+
+		// Put an uncommon starting job on each machine
+		for (unsigned int m = 0; m < n_machines; m++)
+		{
+			std::vector<unsigned int> m_jobs;
+			auto least_common_job = jobs_list[0];
+			int c = 0;
+			while (!machine_job_valid(m, least_common_job)) // Make sure it's valid
+			{
+				least_common_job = jobs_list[c++];
+			}
+			auto least_count = LTM[m].count(std::make_pair(least_common_job, least_common_job)) ? LTM[m][std::make_pair(least_common_job, least_common_job)] : 0;
+			for (auto job : jobs_list)
+			{
+				if (machine_job_valid(m, job))
+				{
+					if (!LTM[m].count(std::make_pair(job, job))) // Job was never first
+					{
+						least_common_job = job;
+						break;
+					}
+					else
+					{
+						if (LTM[m][std::make_pair(job, job)] < least_count)
+						{
+							least_common_job = job;
+							least_count = LTM[m][std::make_pair(job, job)];
+						}
+					}
+				}
+			}
+			jobs_list.erase(std::find(jobs_list.begin(), jobs_list.end(), least_common_job)); // Remove from jobs list
+			m_jobs.push_back(least_common_job);
+			solution.push_back(m_jobs);
+		}
+		
+		// Fill out the remaining jobs
+		auto m_dist = std::uniform_int_distribution<unsigned int>(0, (int)n_machines - 1);
+		while (!jobs_list.empty())
+		{
+			// Choose a random machine
+			unsigned int m = m_dist(rand);
+			auto& machine = solution[m];
+			
+			// Find least common job to follow
+			auto cur_job = machine.back();
+			auto least_common_job = jobs_list[0];
+			if (!machine_job_valid(m, least_common_job)) continue; // Make sure it's valid
+			auto least_count = LTM[m].count(std::make_pair(cur_job, least_common_job)) ? LTM[m][std::make_pair(cur_job, least_common_job)] : 0;
+			for (auto job : jobs_list)
+			{
+				if (machine_job_valid(m, job))
+				{
+					if (!LTM[m].count(std::make_pair(cur_job, job))) // Job was never first
+					{
+						least_common_job = job;
+						break;
+					}
+					else
+					{
+						if (LTM[m][std::make_pair(cur_job, job)] < least_count)
+						{
+							least_common_job = job;
+							least_count = LTM[m][std::make_pair(cur_job, job)];
+						}
+					}
+				}
+			}
+			jobs_list.erase(std::find(jobs_list.begin(), jobs_list.end(), least_common_job)); // Remove from jobs list
+			machine.push_back(least_common_job);
+		}
+
+		print_solution();
 	}
 
 	void lundbeck::add_initial_solution(job& j)

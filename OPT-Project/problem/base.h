@@ -9,11 +9,26 @@ namespace problem
 	template<typename F, typename S>
 	class base
 	{
+	protected:
+		S solution;
 	public:
 		typedef F fitness_type;
 		typedef S solution_type;
 
-		S solution;
+		S& get_solution()
+		{
+			return solution;
+		}
+
+		virtual void set_solution(S& sol)
+		{
+			solution = sol;
+		}
+
+		virtual void restart()
+		{
+			return;
+		}
 
 		virtual F fitness() final
 		{
@@ -26,16 +41,9 @@ namespace problem
 			return false;
 		}
 
-		bool compare_fitness(const S& s)
-		{
-			return fitness(s) < fitness(); // Minimization!
-		}
-
 		virtual std::vector<S> neighbours(int size)
 		{
 			return std::vector<S>(1, solution);
 		}
-
-		void set_bounds(double min, double max);
 	};
 }

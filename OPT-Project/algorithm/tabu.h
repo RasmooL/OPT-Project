@@ -2,8 +2,9 @@
 #include "../problem/base.h"
 #include "../timer.h"
 
-#include <list>
 #include <deque>
+#include <map>
+#include <vector>
 #include <cstdio>
 
 namespace algorithm
@@ -15,32 +16,46 @@ namespace algorithm
 		problem::base<F,S>& problem;
 		typedef std::deque<S> tabu_type;
 		tabu_type tabu_list;
-		unsigned int tabu_len, large_count;
+		unsigned int tabu_len, large_count, res_count;
 		bool large_neigh;
 	public:
-		tabu(problem::base<F,S>& prob, unsigned int len, bool large_neigh = false, unsigned int large_count = 0) : problem(prob), tabu_len(len), large_neigh(large_neigh), large_count(large_count) {}
+		tabu(problem::base<F,S>& prob, unsigned int len, bool large_neigh = false, unsigned int large_count = 0, unsigned int res_count = 3)
+			: problem(prob), tabu_len(len), large_neigh(large_neigh), large_count(large_count), res_count(res_count) {}
 		~tabu() {}
 
 		int evolve(double runtime)
 		{
 			timer time;
-			S& global_best = problem.solution;
+			S& global_best = problem.get_solution();
+			F global_best_fit = problem.fitness(global_best);
 			int count = 0;
 
-			std::cout << "Start fitness: " << problem.fitness(global_best) << std::endl;
+			std::cout << "Start fitness: " << global_best_fit << std::endl;
 
 			unsigned int no_improvement_count = 0;
 			unsigned int neigh_size = 1;
 			while (time.elapsed() < runtime)
 			{
 				count++;
+				if (neigh_size == 2 && no_improvement_count == res_count)
+				{
+					// Restart diversification
+					problem.restart();
+					neigh_size = 1;
+					no_improvement_count = 0;
+				}
 
 				// Add current to Tabu list
-				tabu_list.push_front(problem.solution);
+				tabu_list.push_front(problem.get_solution());
 				if (tabu_list.size() > tabu_len) tabu_list.pop_back();
 
 				// Get list of neighbours
-				if (large_neigh && neigh_size == 1 && no_improvement_count >= large_count) neigh_size = 2;
+				if (large_neigh && neigh_size == 1 && no_improvement_count == large_count)
+				{
+					std::cout << "Using size 2 neighbourhood" << std::endl;
+					neigh_size = 2;
+					no_improvement_count = 0;
+				}
 				auto neighbours = problem.neighbours(neigh_size);
 
 				// Choose best one
@@ -50,19 +65,20 @@ namespace algorithm
 
 				// Is new better than current global best?
 				no_improvement_count++;
-				if (problem.compare_fitness(best_n))
+				if (problem.fitness(best_n) < global_best_fit) // Minimization!
 				{
 					std::cout << "New global best" << std::endl;
 					global_best = best_n;
+					global_best_fit = problem.fitness(best_n);
 					no_improvement_count = 0;
 				}
 
 				// Always set best neighbour as current
-				problem.solution = best_n;
+				problem.set_solution(best_n);
 			}
 
 			// Set solution
-			problem.solution = global_best;
+			problem.set_solution(global_best);
 
 			return count;
 		}
@@ -80,11 +96,14 @@ namespace algorithm
 		S& get_best(std::vector<S>& s, F global_best)
 		{
 			auto best = s.begin();
+			if (s.begin() == s.end()) // Empty neighbour list...
+			{
+				return problem.get_solution(); // Return current...
+			}
 			F best_score = problem.fitness(*best);
 			for (auto sol = s.begin(); sol < s.end(); sol++)
 			{
 				F cur = problem.fitness(*sol);
-				// TODO: FIX FIND ON GCC
 				if (cur < best_score && find_tabu(tabu_list.begin(), tabu_list.end(), *sol) == tabu_list.end()) // Better than current best & not in Tabu list
 				{
 					best = sol;
