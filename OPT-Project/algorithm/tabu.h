@@ -41,10 +41,11 @@ namespace algorithm
 
 				// Get list of neighbours
 				if (large_neigh && neigh_size == 1 && no_improvement_count >= large_count) neigh_size = 2;
-				auto neighbours = problem.neighbours(neigh_size);
+				//auto neighbours = problem.neighbours(neigh_size);
+				S& best_n = problem.find_neigh_thread(neigh_size, this);
 
 				// Choose best one
-				S& best_n = get_best(neighbours, problem.fitness(global_best));
+				//S& best_n = get_best(neighbours, problem.fitness(global_best));
 
 				std::cout << "Neighbour fitness: " << problem.fitness(best_n) << std::endl;
 
@@ -75,6 +76,10 @@ namespace algorithm
 		    ++first;
 		  }
 		  return last;
+		}
+		bool find_tabu(S& s)
+		{
+			return find_tabu(tabu_list.begin(), tabu_list.end(), s) != tabu_list.end();
 		}
 		// Finds the best solution in s, excluding the Tabu list
 		S& get_best(std::vector<S>& s, F global_best)

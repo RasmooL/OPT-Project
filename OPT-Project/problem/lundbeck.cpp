@@ -307,7 +307,7 @@ namespace problem
 		t.insert(t.begin() + to, el);
 	}
 
-	void lundbeck::find_neigh_thread(std::vector<solution_type>& neighbours, int size)
+	lundbeck::solution_type lundbeck::find_neigh_thread(int size, algorithm::tabu<fitness_type, solution_type>* const tabu)
 	{
 		//for (int fm = 0; fm < 3; fm++)
 #ifdef _WIN32
@@ -316,6 +316,7 @@ namespace problem
 		using namespace tbb;
 #endif
 
+		solution_type best_n;
 		combinable<std::vector<solution_type>> n_combinable;
 		parallel_for((const unsigned int)0, n_machines, [&n_combinable, size, this](int fm) // From machine
 		{
@@ -371,22 +372,34 @@ namespace problem
 				}
 			}
 		});
-		// Re-combine neighbour solutions
-		n_combinable.combine_each([&neighbours](const std::vector<solution_type>& vec)
+		// Get the best neighbour using Tabu list
+		fitness_type best_f = 9999999999999; // Ugly, simple
+		solution_type best_s;
+		n_combinable.combine_each([&best_n, &best_f, &best_s, tabu, this](const std::vector<solution_type>& vec)
 		{
-			neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
+			for (solution_type sol : vec)
+			{
+				fitness_type cur_f = fitness(sol);
+				if (cur_f < best_f && !tabu->find_tabu(sol))
+				{
+					best_f = cur_f;
+					best_s = sol;
+				}
+			}
+			//neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
 			//std::copy(vec.begin(), vec.end(), std::back_inserter(neighbours));
 		});
+		return best_s;
 	}
 	// Get all neighbours for solution 's' within a neighbourhood of size 'size'
-	std::vector<lundbeck::solution_type> lundbeck::neighbours(int size) // With move-type neighbourhood, size can ONLY be 1 - scales as (j - 1)^2n
+	/*std::vector<lundbeck::solution_type> lundbeck::neighbours(int size) // With move-type neighbourhood, size can ONLY be 1 - scales as (j - 1)^2n
 	{
 		std::vector<solution_type> neighbours, neighbours1, neighbours2, neighbours3;
 
 		find_neigh_thread(neighbours, size);
 
 		return neighbours;
-	}
+	}*/
 
 	void lundbeck::add_initial_solution(job& j)
 	{

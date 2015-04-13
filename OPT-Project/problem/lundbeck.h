@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <string>
+#include "../algorithm/tabu.h"
 
 namespace problem
 {
@@ -27,8 +28,8 @@ namespace problem
 		virtual fitness_type fitness(const solution_type& s) override;
 
 		void move_between(std::vector<unsigned int>& f, std::vector<unsigned int>& t, int from, int to);
-		void find_neigh_thread(std::vector<solution_type>& neighbours, int size);
-		std::vector<solution_type> neighbours(int size) override;
+		solution_type find_neigh_thread(int size, algorithm::tabu<fitness_type, solution_type>* const tabu) override; // Unfortunately I have to make this specific to Tabu unless I do even more template trickery :(
+		//std::vector<solution_type> neighbours(int size) override; 
 
 		void add_initial_solution(job& j);
 

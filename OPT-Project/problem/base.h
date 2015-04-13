@@ -3,6 +3,12 @@
 #include <vector>
 #include <cstdio>
 #include <iostream>
+//#include "../algorithm/tabu.h"
+
+namespace algorithm
+{
+	template<typename F, typename S> class tabu;
+}
 
 namespace problem
 {
@@ -31,9 +37,14 @@ namespace problem
 			return fitness(s) < fitness(); // Minimization!
 		}
 
-		virtual std::vector<S> neighbours(int size)
+		//virtual std::vector<S> neighbours(int size)
+		//{
+		//	return std::vector<S>(1, solution);
+		//}
+
+		virtual S find_neigh_thread(int size, algorithm::tabu<F,S>* const tabu)
 		{
-			return std::vector<S>(1, solution);
+			return S();
 		}
 
 		void set_bounds(double min, double max);
