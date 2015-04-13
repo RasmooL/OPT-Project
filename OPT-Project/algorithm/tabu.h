@@ -42,7 +42,7 @@ namespace algorithm
 				// Get list of neighbours
 				if (large_neigh && neigh_size == 1 && no_improvement_count >= large_count) neigh_size = 2;
 				//auto neighbours = problem.neighbours(neigh_size);
-				S& best_n = problem.find_neigh_thread(neigh_size, this);
+				S best_n = problem.find_neigh_thread(neigh_size, this);
 
 				// Choose best one
 				//S& best_n = get_best(neighbours, problem.fitness(global_best));
