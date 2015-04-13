@@ -37,7 +37,7 @@ namespace problem
 		}
 
 		n_jobs = 0;
-		while (!f.eof() && n_jobs < 90) // Loop for each job (n_jobs limit)
+		while (!f.eof() && n_jobs < 110) // Loop for each job (n_jobs limit)
 		{
 			try
 			{
@@ -306,7 +306,6 @@ namespace problem
 
 	lundbeck::solution_type lundbeck::find_neigh_thread(int size, algorithm::tabu<fitness_type, solution_type>* const tabu)
 	{
-		//for (int fm = 0; fm < 3; fm++)
 #ifdef _WIN32
 		using namespace Concurrency;
 #else
@@ -315,11 +314,13 @@ namespace problem
 
 		solution_type best_n;
 		combinable<std::vector<solution_type>> n_combinable;
+		//for (int fm = 0; fm < 3; fm++)
 		parallel_for((const unsigned int)0, n_machines, [&n_combinable, size, this](int fm) // From machine
 		{
-			solution_type tmp_sol(solution);
-			for (int tm = 0, tmmax = n_machines; tm < tmmax; tm++) // To machine
+			//for (int tm = 0, tmmax = n_machines; tm < tmmax; tm++) // To machine
+			parallel_for((const unsigned int)0, n_machines, [fm, &n_combinable, size, this](int tm)
 			{
+				solution_type tmp_sol(solution);
 				for (int fj = 0, fjmax = (int)solution[fm].size(); fj < fjmax; fj++) // From job
 				{
 					for (int tj = 0, tjmax = (int)solution[tm].size(); tj < tjmax; tj++) // To job
@@ -367,7 +368,7 @@ namespace problem
 
 					}
 				}
-			}
+			});
 		});
 		// Get the best neighbour using Tabu list
 		fitness_type best_f = 9999999999999; // Ugly, simple
