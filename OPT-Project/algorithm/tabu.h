@@ -26,8 +26,9 @@ namespace algorithm
 		int evolve(double runtime)
 		{
 			timer time;
-			S& global_best = problem.get_solution();
+			S global_best = problem.get_solution();
 			F global_best_fit = problem.fitness(global_best);
+			F current_best_fit = global_best_fit;
 			int count = 0;
 
 			std::cout << "Start fitness: " << global_best_fit << std::endl;
@@ -37,10 +38,11 @@ namespace algorithm
 			while (time.elapsed() < runtime)
 			{
 				count++;
-				if (neigh_size == 2 && no_improvement_count == res_count)
+				if ((large_neigh && neigh_size == 2 && no_improvement_count == res_count) || (!large_neigh && no_improvement_count == res_count))
 				{
 					// Restart diversification
 					problem.restart();
+					current_best_fit = problem.fitness(problem.get_solution());
 					neigh_size = 1;
 					no_improvement_count = 0;
 				}
@@ -59,17 +61,24 @@ namespace algorithm
 				auto neighbours = problem.neighbours(neigh_size);
 
 				// Choose best one
-				S& best_n = get_best(neighbours, problem.fitness(global_best));
+				S& best_n = get_best(neighbours, global_best_fit);
+				F best_n_fit = problem.fitness(best_n);
 
-				std::cout << "Neighbour fitness: " << problem.fitness(best_n) << std::endl;
+				std::cout << "Neighbour fitness: " << best_n_fit << std::endl;
 
 				// Is new better than current global best?
 				no_improvement_count++;
-				if (problem.fitness(best_n) < global_best_fit) // Minimization!
+				if (best_n_fit < global_best_fit) // Minimization!
 				{
 					std::cout << "New global best" << std::endl;
 					global_best = best_n;
-					global_best_fit = problem.fitness(best_n);
+					global_best_fit = best_n_fit;
+					current_best_fit = best_n_fit;
+					no_improvement_count = 0;
+				}
+				else if (best_n_fit < current_best_fit) // Keep track of non-global improvements for restart diversification
+				{
+					current_best_fit = best_n_fit;
 					no_improvement_count = 0;
 				}
 

@@ -8,12 +8,12 @@ int main()
 	using namespace std;
 
 	bool param_tune = false;
-	double run_time = 600;
+	double run_time = 60;
 	unsigned int machines = 3;
 	unsigned int tabu_length = 100;
 	bool large_neigh = true;
 	unsigned int large_count = 100;
-	unsigned int res_count = 5;
+	unsigned int res_count = 3;
 #ifdef _WIN32
 	std::string path = "C:\\Users\\Rasmus\\Documents\\Visual Studio 2013\\Projects\\OPT-Project\\blister_actual.csv";
 #else
