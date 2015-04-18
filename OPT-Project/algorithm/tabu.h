@@ -129,5 +129,14 @@ namespace algorithm
 			}
 			return *best;
 		}
+
+		void print_params()
+		{
+			using namespace std;
+			cout << "Tabu length: " << tabu_len << endl;
+			cout << "Reset count: " << res_count << endl;
+			cout << "Large neighbourhood: " << (large_neigh ? "true" : "false") << endl;
+			if (large_neigh) cout << "Large count: " << large_count << endl;
+		}
 	};
 }

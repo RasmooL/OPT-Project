@@ -44,5 +44,8 @@
     <ClInclude Include="problem\lundbeck.h">
       <Filter>Header Files\problem</Filter>
     </ClInclude>
+    <ClInclude Include="ranker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

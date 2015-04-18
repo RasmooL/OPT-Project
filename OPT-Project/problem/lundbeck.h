@@ -35,9 +35,10 @@ namespace problem
 		void find_neigh_thread(std::vector<solution_type>& neighbours, int size);
 		std::vector<solution_type> neighbours(int size) override;
 
-		virtual void restart() override;
+		virtual void restart() override; // Diversification
+		virtual void reset() override; // Reset state for param tuning
 
-		void add_initial_solution(job& j);
+		void add_initial_solution(const job& j);
 
 		void print_solution();
 	};

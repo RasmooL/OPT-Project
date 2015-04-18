@@ -240,12 +240,9 @@ namespace problem
 	{
 		// TODO: CHECK THAT THIS IS CORRECT!
 		double time = 0;
-		if (from_job.material == to_job.material) return 50; // Same material number
-		
 		if (!from_job.hotmelt && to_job.hotmelt || from_job.hotmelt && !to_job.hotmelt) time += 60;
-
 		if (from_job.packing_type != to_job.packing_type) time += 120;
-
+		
 		if (from_job.prenumb == to_job.prenumb)
 		{
 			if (from_job.strength == to_job.strength)
@@ -282,7 +279,6 @@ namespace problem
 				return time + 160;
 			}
 		}
-		return 60;
 	}
 	lundbeck::fitness_type lundbeck::fitness(const solution_type& s)
 	{
@@ -524,7 +520,23 @@ namespace problem
 		print_solution();
 	}
 
-	void lundbeck::add_initial_solution(job& j)
+	void lundbeck::reset()
+	{
+		solution.clear();
+
+		for (unsigned int i = 0; i < n_machines; i++)
+		{
+			std::vector<unsigned int> j;
+			solution.push_back(j);
+		}
+
+		for (auto j = jobs.begin(); j != jobs.end(); j++)
+		{
+			add_initial_solution(std::get<1>(*j));
+		}
+	}
+
+	void lundbeck::add_initial_solution(const job& j)
 	{
 		if (j.machine_type == job::machinetype::ALL)
 		{
