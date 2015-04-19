@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include "boost/math/distributions/chi_squared.hpp"
@@ -28,12 +29,16 @@ int main()
 	// Parameter tune, or calculate solution
 	if (param_tune)
 	{
+		fstream results("results.txt", ios::out | ios::trunc);
+
 		unsigned int tabu_lengths[] = { 5, 25, 100, 250 }; // Integer
 		unsigned int res_counts_small[] = { 5, 25, 100, 250 }; // Integer
 		unsigned int res_counts_large[] = { 2, 5, 8 }; // Integer
 		bool large_neighs[] = { false }; // Ordinal
 		unsigned int large_counts[] = { 250 }; // Conditional - only if large_neighs = true
-		double run_time = 3; // Fixed
+
+		double run_time = 1; // Fixed
+		double alpha = 0.3; // Confidence
 
 		// Build candidate algorithm list and give each an ID
 		map<int, alg_type> candidates;
@@ -63,31 +68,47 @@ int main()
 			}
 		}
 
-		cout << "Running with " << candidates.size() << " candidates." << endl;
+		// Log configurations
+		results << "Candidate configurations: " << endl;
+		for (auto i = candidates.begin(); i != candidates.end(); i++)
+		{
+			int id = get<0>(*i);
+			auto alg = get<1>(*i);
+
+			results << id << endl;
+			alg.print_params(results);
+			results << endl;
+		}
 
 		int k = 0; // Current block number
-		int k_max = 3;
+		int k_max = 1000;
 		int m_max = (int)candidates.size();
-		vector<vector<double>> costs; // Initialized to maximum size
-		vector<vector<double>> ranks;
+		vector<map<int, double>> costs;
+		vector<map<int, double>> ranks;
 		vector<double> T;
 
+		cout << "Running with " << m_max << " candidates." << endl;
 		while (candidates.size() > 1 && k < k_max) // Stop if best candidate found, or exceeded maximum block number
 		{
 			int m = (int)candidates.size(); // Number of candidates remaining
 			int kf = k + 1; // This is the 1-indexed k to be used in most places of the equations (but not for vector indexing)
 			prob_type::solution_type block_sol = problem.get_solution();
-			costs.push_back(vector<double>(m));
-			ranks.push_back(vector<double>(m));
+			costs.push_back(map<int, double>());
+			ranks.push_back(map<int, double>());
+
+			vector<int> ids;
 			for (auto i = candidates.begin(); i != candidates.end(); i++) // Evaluate each remaining candidate
 			{
 				int id = get<0>(*i);
+				ids.push_back(id);
+
 				auto alg = get<1>(*i);
 				int iter = alg.evolve(run_time);
 
-				alg.print_params();
-				problem.print_solution();
+				//alg.print_params();
+				//problem.print_solution();
 				costs[k][id] = problem.fitness(problem.get_solution());
+				cout << "Final fitness: " << costs[k][id] << ". ";
 
 				cout << "Going to next candidate" << endl;
 				//cin.get();
@@ -97,11 +118,11 @@ int main()
 			// First, do a Friedman test (family-wise)
 			get_ranks(costs[k], ranks[k]);
 			cout << "Ranks: ";
-			for (auto r : ranks[k]) cout << r << " ";
+			for (auto r : ranks[k]) cout << r.second << " ";
 			cout << endl;
 
-			vector<double> Rj(m); // Sum of ranks for each configuration
-			for (int i = 0; i < m; i++) // For each configuration
+			map<int, double> Rj; // Sum of ranks for each configuration
+			for (int i: ids) // For each configuration
 			{
 				Rj[i] = 0;
 				for (int l = 0; l <= k; l++) // Sum over blocks
@@ -112,7 +133,7 @@ int main()
 			}
 
 			double Tnum = 0; // Numerator of T
-			for (int j = 0; j < m; j++)
+			for (int j: ids)
 			{
 				Tnum += pow(Rj[j] - (kf*(m+1))/2, 2.0);
 			}
@@ -121,7 +142,7 @@ int main()
 			double Tden = 0; // Denominator of T
 			for (int l = 0; l <= k; l++)
 			{
-				for (int j = 0; j < m; j++)
+				for (int j: ids)
 				{
 					Tden += pow(ranks[l][j], 2.0);
 				}
@@ -134,16 +155,57 @@ int main()
 			}
 
 			T.push_back(Tnum / Tden);
-			cout << "chi: " << T[k] << endl;
+			//cout << "chi: " << T[k] << endl;
 			auto chi = boost::math::chi_squared(m - 1); // Chi-squared distribution with m-1 DoF
-			cout << "p: " << 1 - boost::math::cdf(chi, T[k]) << endl;
+			double p = 1 - boost::math::cdf(chi, T[k]);
+			double chiq = boost::math::quantile(chi, 1 - alpha);
+			//cout << "quantile: " << chiq << endl;
+
+			if (T[k] > chiq)
+			{
+				// Null hypothesis rejected -> do pairwise comparisons
+				int best_id = 0;
+				double best_rank = numeric_limits<double>::max();
+				for (int i : ids) // Find best candidate = lowest rank sum
+				{
+					if (Rj[i] < best_rank)
+					{
+						best_id = i;
+						best_rank = Rj[i];
+					}
+				}
+				results << "Pairwise testing using best = " << best_id << endl;
+				for (int h : ids) // Compare
+				{
+					if (h == best_id) continue;
+					double snum = 2 * kf* (1 - (T[k] / (kf * (m - 1))));
+					double score = abs(Rj[best_id] - Rj[h]) / sqrt((snum * Tden) / ((kf - 1) * (m - 1)));
+					auto students = boost::math::students_t(m - 1);
+					cout << "score: " << score << endl;
+					double studq = boost::math::quantile(students, 1 - alpha / 2);
+					cout << "quantile: " << studq << endl;
+
+					if (score > studq)
+					{
+						results << h << " out of race: score = " << score << " / quantile = " << studq << endl;
+						candidates.erase(h);
+					}
+				}
+			}
+
+			// Write block costs (fitness) to log
+			results << "Block " << kf << " - chi = " << T[k] << " / chiq = " << chiq << endl;
+			for (auto c : costs[k]) results << c.first << "; "; // Write IDs
+			results << endl;
+			for (auto c : costs[k]) results << c.second << "; "; // Write costs
+			results << endl << endl;
 
 			problem.reset(); // Get a new solution for a new block
 			k++;
-			cin.get();
+			//cin.get();
 		}
 
-		// DO SOMETHING WITH RESULTS: LOG?
+		results.close();
 	}
 	else // Run with fixed parameters
 	{

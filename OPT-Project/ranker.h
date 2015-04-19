@@ -7,9 +7,11 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <algorithm>
 
 using std::vector;
+using std::map;
 using std::string;
 
 #ifndef uint
@@ -125,6 +127,24 @@ inline void get_ranks(const vector<T>& v, vector<S>& w,
 	const string& method = "average")
 {
 	ranker<T, lt<T> > r(v); r.get_ranks(w, method);
+}
+
+// ADDED: Rank map<id, score> into map<id, rank>
+template <class T, class S>
+inline void get_ranks(const map<S, T>& v, map<S, T>& w,
+	const string& method = "average")
+{
+	vector<T> tmp, res;
+	for (std::pair<S,T> p : v)
+	{
+		tmp.push_back(p.second);
+	}
+	ranker<T, lt<T> > r(tmp); r.get_ranks(res, method);
+	int count = 0;
+	for (std::pair<S, T> p : v)
+	{
+		w[p.first] = res[count++];
+	}
 }
 
 template <class T, class S>

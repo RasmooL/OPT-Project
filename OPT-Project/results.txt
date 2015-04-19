@@ -1,0 +1,186 @@
+Candidate configurations: 
+0
+Tabu length: 5
+Reset count: 5
+Large neighbourhood: false
+
+1
+Tabu length: 5
+Reset count: 25
+Large neighbourhood: false
+
+2
+Tabu length: 5
+Reset count: 100
+Large neighbourhood: false
+
+3
+Tabu length: 5
+Reset count: 250
+Large neighbourhood: false
+
+4
+Tabu length: 25
+Reset count: 5
+Large neighbourhood: false
+
+5
+Tabu length: 25
+Reset count: 25
+Large neighbourhood: false
+
+6
+Tabu length: 25
+Reset count: 100
+Large neighbourhood: false
+
+7
+Tabu length: 25
+Reset count: 250
+Large neighbourhood: false
+
+8
+Tabu length: 100
+Reset count: 5
+Large neighbourhood: false
+
+9
+Tabu length: 100
+Reset count: 25
+Large neighbourhood: false
+
+10
+Tabu length: 100
+Reset count: 100
+Large neighbourhood: false
+
+11
+Tabu length: 100
+Reset count: 250
+Large neighbourhood: false
+
+12
+Tabu length: 250
+Reset count: 5
+Large neighbourhood: false
+
+13
+Tabu length: 250
+Reset count: 25
+Large neighbourhood: false
+
+14
+Tabu length: 250
+Reset count: 100
+Large neighbourhood: false
+
+15
+Tabu length: 250
+Reset count: 250
+Large neighbourhood: false
+
+Block 1 - chi = 15.3125 / chiq = 17.3217
+0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 
+3444; 3435; 3435; 3435; 3435; 3435; 3435; 3435; 3435; 3444; 3444; 3435; 3435; 3444; 3435; 3435; 
+
+Block 2 - chi = 15 / chiq = 17.3217
+0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 
+4180; 4215; 4157; 4180; 4180; 4180; 4180; 4202; 4180; 4180; 4180; 4180; 4180; 4180; 4157; 4180; 
+
+Pairwise testing using best = 2
+0 out of race: score = 1.83254 / quantile = 1.07353
+1 out of race: score = 1.77146 / quantile = 1.07353
+4 out of race: score = 1.71037 / quantile = 1.07353
+7 out of race: score = 1.64929 / quantile = 1.07353
+9 out of race: score = 2.93207 / quantile = 1.07353
+10 out of race: score = 2.93207 / quantile = 1.07353
+13 out of race: score = 1.83254 / quantile = 1.07353
+15 out of race: score = 1.71037 / quantile = 1.07353
+Block 3 - chi = 19.2087 / chiq = 17.3217
+0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 
+4260; 4260; 4260; 4260; 4267; 4260; 4260; 4260; 4260; 4295; 4295; 4260; 4260; 4260; 4260; 4267; 
+
+Block 4 - chi = 4.3012 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3902; 3900; 3900; 3902; 3882; 3882; 3882; 3882; 
+
+Block 5 - chi = 4.94828 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4050; 4050; 4082; 4082; 4082; 4050; 4050; 4082; 
+
+Block 6 - chi = 4.42529 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3434; 3434; 3434; 3434; 3434; 3434; 3434; 3434; 
+
+Block 7 - chi = 5.45082 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4012; 3904; 4010; 4012; 4010; 4010; 4010; 3904; 
+
+Block 8 - chi = 4.95355 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3490; 3490; 3490; 3490; 3490; 3490; 3490; 3490; 
+
+Block 9 - chi = 5.38606 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3767; 3760; 3760; 3760; 3760; 3760; 3760; 3760; 
+
+Block 10 - chi = 4.70876 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3925; 3925; 3925; 3952; 3952; 3952; 3952; 3952; 
+
+Block 11 - chi = 5.8275 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4179; 4179; 4179; 4179; 4179; 4179; 4165; 4165; 
+
+Block 12 - chi = 5.72573 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3917; 3830; 3830; 3830; 3917; 3830; 3830; 3830; 
+
+Block 13 - chi = 6.16748 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3122; 3122; 3122; 3122; 3122; 3122; 3122; 3122; 
+
+Block 14 - chi = 5.72573 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3797; 3797; 3797; 3797; 3797; 3797; 3797; 3797; 
+
+Block 15 - chi = 6.16748 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3510; 3510; 3510; 3510; 3510; 3510; 3510; 3510; 
+
+Block 16 - chi = 5.72573 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4022; 4022; 4022; 4022; 4022; 4022; 4022; 4022; 
+
+Block 17 - chi = 6.89976 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3880; 3880; 3880; 3942; 3880; 3880; 3880; 3880; 
+
+Block 18 - chi = 6.08065 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3762; 3965; 3965; 3762; 3762; 3965; 3762; 3762; 
+
+Block 19 - chi = 5.49504 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3814; 3784; 3784; 3784; 3814; 3800; 3800; 3820; 
+
+Block 20 - chi = 5.53312 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3734; 3734; 3734; 3734; 3825; 3734; 3734; 3734; 
+
+Block 21 - chi = 4.88889 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4089; 4089; 4089; 4089; 4089; 4089; 4100; 4100; 
+
+Block 22 - chi = 4.73846 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3835; 3892; 3835; 3892; 3892; 3892; 3835; 3892; 
+
+Block 23 - chi = 5.47766 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+4090; 4072; 4072; 4072; 4090; 4090; 4072; 4090; 
+
+Block 24 - chi = 5.88621 / chiq = 8.38343
+2; 3; 5; 6; 8; 11; 12; 14; 
+3935; 3937; 3935; 3937; 3937; 3935; 3935; 3935; 
+

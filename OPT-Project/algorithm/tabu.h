@@ -31,7 +31,7 @@ namespace algorithm
 			F current_best_fit = global_best_fit;
 			int count = 0;
 
-			std::cout << "Start fitness: " << global_best_fit << std::endl;
+			//std::cout << "Start fitness: " << global_best_fit << std::endl;
 
 			unsigned int no_improvement_count = 0;
 			unsigned int neigh_size = 1;
@@ -64,13 +64,13 @@ namespace algorithm
 				S& best_n = get_best(neighbours, global_best_fit);
 				F best_n_fit = problem.fitness(best_n);
 
-				std::cout << "Neighbour fitness: " << best_n_fit << std::endl;
+				//std::cout << "Neighbour fitness: " << best_n_fit << std::endl;
 
 				// Is new better than current global best?
 				no_improvement_count++;
 				if (best_n_fit < global_best_fit) // Minimization!
 				{
-					std::cout << "New global best" << std::endl;
+					//std::cout << "New global best" << std::endl;
 					global_best = best_n;
 					global_best_fit = best_n_fit;
 					current_best_fit = best_n_fit;
@@ -130,13 +130,12 @@ namespace algorithm
 			return *best;
 		}
 
-		void print_params()
+		void print_params(std::ostream& os = std::cout)
 		{
-			using namespace std;
-			cout << "Tabu length: " << tabu_len << endl;
-			cout << "Reset count: " << res_count << endl;
-			cout << "Large neighbourhood: " << (large_neigh ? "true" : "false") << endl;
-			if (large_neigh) cout << "Large count: " << large_count << endl;
+			os << "Tabu length: " << tabu_len << std::endl;
+			os << "Reset count: " << res_count << std::endl;
+			os << "Large neighbourhood: " << (large_neigh ? "true" : "false") << std::endl;
+			if (large_neigh) os << "Large count: " << large_count << std::endl;
 		}
 	};
 }

@@ -37,7 +37,7 @@ namespace problem
 		}
 
 		n_jobs = 0;
-		while (!f.eof() && n_jobs < 50) // Loop for each job (n_jobs limit)
+		while (!f.eof() && n_jobs < 30) // Loop for each job (n_jobs limit)
 		{
 			try
 			{
@@ -420,11 +420,15 @@ namespace problem
 			}
 		});
 		// Re-combine neighbour solutions
-		n_combinable.combine_each([&neighbours](const std::vector<solution_type>& vec)
+		try
 		{
-			neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
-			//std::copy(vec.begin(), vec.end(), std::back_inserter(neighbours));
-		});
+			n_combinable.combine_each([&neighbours](const std::vector<solution_type>& vec)
+			{
+				neighbours.insert(neighbours.begin(), vec.cbegin(), vec.cend());
+				//std::copy(vec.begin(), vec.end(), std::back_inserter(neighbours));
+			});
+		}
+		catch(...){} // Won't catch the heap corruption that happens at times :(
 	}
 	// Get all neighbours for solution 's' within a neighbourhood of size 'size'
 	std::vector<lundbeck::solution_type> lundbeck::neighbours(int size) // With move-type neighbourhood, size can ONLY be 1 - scales as (j - 1)^2n
@@ -439,7 +443,7 @@ namespace problem
 	// Greedy restart diversification using long term frequency memory
 	void lundbeck::restart()
 	{
-		std::cout << "Restart diversification" << std::endl;
+		//std::cout << "Restart diversification" << std::endl;
 		solution.clear();
 
 		// Get all jobs
@@ -517,7 +521,7 @@ namespace problem
 			machine.push_back(least_common_job);
 		}
 
-		print_solution();
+		//print_solution();
 	}
 
 	void lundbeck::reset()
