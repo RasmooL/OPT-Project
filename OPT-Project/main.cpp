@@ -37,8 +37,8 @@ int main()
 		bool large_neighs[] = { false }; // Ordinal
 		unsigned int large_counts[] = { 250 }; // Conditional - only if large_neighs = true
 
-		double run_time = 1; // Fixed
-		double alpha = 0.3; // Confidence
+		double run_time = 600; // Fixed
+		double alpha = 0.1; // Confidence
 
 		// Build candidate algorithm list and give each an ID
 		map<int, alg_type> candidates;
@@ -81,7 +81,7 @@ int main()
 		}
 
 		int k = 0; // Current block number
-		int k_max = 1000;
+		int k_max = 8;
 		int m_max = (int)candidates.size();
 		vector<map<int, double>> costs;
 		vector<map<int, double>> ranks;
