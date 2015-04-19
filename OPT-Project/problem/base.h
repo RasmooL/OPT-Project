@@ -36,6 +36,11 @@ namespace problem
 			return;
 		}
 
+		virtual void reset()
+		{
+			return;
+		}
+
 		virtual F fitness() final
 		{
 			return fitness(solution);
