@@ -13,7 +13,7 @@ int main()
 {
 	using namespace std;
 
-	bool param_tune = true;
+	bool param_tune = false;
 	unsigned int machines = 3;
 
 #ifdef _WIN32
@@ -209,19 +209,25 @@ int main()
 	}
 	else // Run with fixed parameters
 	{
-		double run_time = 60;
-		unsigned int tabu_length = 100;
+		double run_time = 7200;
+		unsigned int tabu_length = 250;
 		bool large_neigh = true;
-		unsigned int large_count = 100;
+		unsigned int large_count = 250;
 		unsigned int res_count = 3;
 
-		auto algorithm = alg_type(problem, tabu_length, large_neigh, large_count, res_count);
+		cout << "Running for 8 x 2 hours with 2-move neighbourhood." << endl;
 
-		int iter = algorithm.evolve(run_time);
+		for(int i = 0; i < 8; i++)
+		{
+			auto algorithm = alg_type(problem, tabu_length, large_neigh, large_count, res_count);
+		
+			int iter = algorithm.evolve(run_time);
 
-		problem.print_solution();
+			problem.print_solution();
 
-		cout << "Iterations: " << iter << endl;
+			cout << "Iterations: " << iter << endl;
+			problem.reset();
+		}
 	}
 
 	cin.get();
